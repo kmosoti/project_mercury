@@ -1,1 +1,1 @@
-web: ./target/release/project_mercury
+web: /target/release/project_mercury
