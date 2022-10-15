@@ -1,4 +1,4 @@
-use std::env;
+//use std::env;
 
 use serenity::async_trait;
 use serenity::model::channel::Message;
@@ -87,7 +87,7 @@ async fn main() {
     dotenv().ok();
     //check if discord bot token is available
     // Configure the client with your Discord bot token in the environment.
-    let token = env::var("DISCORD_BOT_TOKEN").expect("Expected DISCORD_BOT_TOKEN in the environment");
+    let token = String::from("MTAyOTk3OTE4MDI3Nzk1NjYwOA.GZkvOF.Tj3nS7YqRjKEe5C_yV369xAkUY8byFf4gl3zD0");
     // Set gateway intents, which decides what events the bot will be notified about
     let intents = GatewayIntents::GUILD_MESSAGES
         | GatewayIntents::DIRECT_MESSAGES

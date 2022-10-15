@@ -1,6 +1,6 @@
 //get environment variables
-use dotenv::dotenv;
-use std::env;
+//use dotenv::dotenv;
+//use std::env;
 //use hyper::body::Buf;
 use hyper::{header, Body, Client, Request};
 use hyper_tls::HttpsConnector;
@@ -32,8 +32,8 @@ pub struct OAIRequest {
 }
 //Get openai api key
 pub fn get_api_key() -> String {
-    dotenv().ok();
-    let api_key = env::var("OPEN_AI_KEY").expect("OPEN_AI_KEY must be set");
+    //dotenv().ok();
+    let api_key = String::from("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");
     return api_key;
 }
 
