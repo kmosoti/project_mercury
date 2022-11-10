@@ -1,5 +1,3 @@
-//use std::env;
-
 use serenity::async_trait;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
@@ -9,12 +7,16 @@ use serenity::prelude::*;
 mod gptconnection;
 
 //import discord bot token from .env file
-use dotenv::dotenv;
+//use dotenv;
+//use std::env;
 
 struct Handler;
 
 #[async_trait]
 impl EventHandler for Handler {
+
+
+
     // Set a handler for the `message` event - so that whenever a new message
     // is received - the closure (or function) passed will be called.
     //
@@ -84,10 +86,13 @@ impl EventHandler for Handler {
 #[tokio::main]
 async fn main() {
     // Configure the client with your DISCORD_BOT_TOKEN in the environment.
-    dotenv().ok();
+    dotenv::dotenv().ok();
+    let token = dotenv::var("DISCORD_BOT_TOKEN")
+        .expect("Expected a token in the environment");
+    
+    //println!("Token: {}", token);
     //check if discord bot token is available
     // Configure the client with your Discord bot token in the environment.
-    let token = String::from("MTAyOTk3OTE4MDI3Nzk1NjYwOA.GZkvOF.Tj3nS7YqRjKEe5C_yV369xAkUY8byFf4gl3zD0");
     // Set gateway intents, which decides what events the bot will be notified about
     let intents = GatewayIntents::GUILD_MESSAGES
         | GatewayIntents::DIRECT_MESSAGES

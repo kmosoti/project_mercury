@@ -1,12 +1,10 @@
 //get environment variables
-//use dotenv::dotenv;
-//use std::env;
-//use hyper::body::Buf;
+use dotenv;
+
 use hyper::{header, Body, Client, Request};
 use hyper_tls::HttpsConnector;
 use serde_derive::{Deserialize, Serialize};
-//use std::io::Read;
-//use serde_json::json;
+
 
 #[derive(Deserialize, Debug)]
 pub struct OAIChoices {
@@ -32,8 +30,8 @@ pub struct OAIRequest {
 }
 //Get openai api key
 pub fn get_api_key() -> String {
-    //dotenv().ok();
-    let api_key = String::from("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");
+    dotenv::dotenv().ok();
+    let api_key = dotenv::var("OPEN_AI_TOKEN").expect("OPENAI_API_KEY must be set");
     return api_key;
 }
 
