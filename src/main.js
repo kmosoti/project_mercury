@@ -7,7 +7,17 @@ const {DISCORD_TOKEN} = process.env;
 //get client and collection from discord.js
 const {Client, Collection, GatewayIntentBits} = require('discord.js');
 
-const client = new Client({intents: GatewayIntentBits.Guilds});
+//include intent for voice
+const client = new Client(
+    {
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildVoiceStates,
+    ],
+    
+    }
+);
 
 client.commands = new Collection();
 client.command_array = [];

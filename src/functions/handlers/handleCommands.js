@@ -25,7 +25,7 @@ module.exports = (client) => {
         }
 
 
-        const client_id = '1029979180277956608';
+        //const client_id = '1029979180277956608';
         //const guild_id = '1029977614879830057';
 
         const rest = new REST({version: '9'}).setToken(process.env.DISCORD_TOKEN);
@@ -33,7 +33,7 @@ module.exports = (client) => {
             console.log('Started refreshing application (/) commands.');
 
             await rest.put(
-                Routes.applicationCommands(client_id), {
+                Routes.applicationCommands(process.env.CLIENT_ID), {
                     //put the commands in the body include name, description, and options as a json object
                     body: client.command_array,
                 },
