@@ -93,7 +93,7 @@ module.exports = {
             await interaction.reply(`You have successfully joined the tournament! There are now ${ongoingTournament.players.length} players participating.`);
         } else if (interaction.options.getSubcommand() === 'view-tournament') {
             if (!ongoingTournament) {
-                await interaction.reply('No tournament is currently ongoing.');
+                await interaction.reply('No tournament is currently ongoing.');l
                 return;
             }
 
