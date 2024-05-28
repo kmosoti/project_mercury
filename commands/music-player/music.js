@@ -4,13 +4,49 @@ const playdl = require('play-dl');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('play')
-        .setDescription('Plays a song in a voice channel.')
-        .addStringOption(option =>
-            option.setName('keyword-or-url')
-                .setDescription('The URL of the song to play or keywords to search')
-                .setRequired(true)),
+        .setName('music')
+        .setDescription('Music related commands')
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('play')
+                .setDescription('Plays a song in a voice channel.')
+                .addStringOption(option =>
+                    option.setName('keyword-or-url')
+                        .setDescription('The URL of the song to play or keywords to search')
+                        .setRequired(true)
+                )
+        )
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('queue')
+                .setDescription('Displays the current music queue.')
+        )
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('skip')
+                .setDescription('Skips the current song in the queue.')
+        )
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('stop')
+                .setDescription('Stops the music, clears the queue, and disconnects the bot.')
+        ),
     async execute(interaction) {
+        const subcommand = interaction.options.getSubcommand();
+
+        if (subcommand === 'play') {
+            await this.play(interaction);
+        } else if (subcommand === 'queue') {
+            await this.queue(interaction);
+        } else if (subcommand === 'skip') {
+            await this.skip(interaction);
+        } else if (subcommand === 'stop') {
+            await this.stop(interaction);
+        } else {
+            await interaction.reply('Invalid subcommand provided.');
+        }
+    },
+    async play(interaction) {
         const voiceChannel = interaction.member.voice.channel;
         if (!voiceChannel) {
             await interaction.reply('You need to be in a voice channel to play music!');
@@ -63,6 +99,79 @@ module.exports = {
             console.error('Error executing the play command:', error);
             await interaction.followUp('Failed to play the song. Please try again.');
         }
+    },
+    async queue(interaction) {
+        const voiceChannel = interaction.member.voice.channel;
+        if (!voiceChannel) {
+            await interaction.reply('You need to be in a voice channel to view the queue!');
+            return;
+        }
+
+        const queue = interaction.client.music_queue.get(voiceChannel.guild.id);
+        if (!queue || queue.length === 0) {
+            await interaction.reply('The music queue is currently empty.');
+            return;
+        }
+
+        const queueLength = queue.reduce((prev, curr) => {
+            const [minutes, seconds] = curr.duration.split(":").map(Number);
+            return prev + (minutes * 60) + seconds;
+        }, 0);
+        
+        const hours = Math.floor(queueLength / 3600);
+        const minutes = Math.floor((queueLength % 3600) / 60);
+        const seconds = queueLength % 60;
+        
+        const formattedQueueLength = `${hours > 0 ? `${hours}:` : ""}${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+        
+        const queueMessage = `**Current Music Queue (${formattedQueueLength}):**\n${queue.map((song, index) => `${index + 1}. (${song.duration})**${song.title}** queued by **${song.requestedBy}**`).join('\n')}`;
+        await interaction.reply(queueMessage);
+    },
+    async skip(interaction) {
+        const voiceChannel = interaction.member.voice.channel;
+        if (!voiceChannel) {
+            await interaction.reply('You need to be in a voice channel to skip the song!');
+            return;
+        }
+
+        const queue = interaction.client.music_queue.get(voiceChannel.guild.id);
+        if (!queue || queue.length === 0) {
+            await interaction.reply('There is no song to skip.');
+            return;
+        }
+
+        const skippedSong = queue.shift();
+        interaction.client.music_queue.set(voiceChannel.guild.id, queue);
+
+        await interaction.reply(`**${skippedSong.title}** was skipped by **${interaction.user.username}**.`);
+
+        if (queue.length > 0) {
+            playSong(interaction, voiceChannel, queue);
+        } else {
+            voiceChannel.guild.members.me.voice.disconnect();
+            await interaction.followUp('The music queue is now empty. Disconnecting from the voice channel.');
+        }
+    },
+    async stop(interaction) {
+        const voiceChannel = interaction.member.voice.channel;
+        if (!voiceChannel) {
+            await interaction.reply('You need to be in a voice channel to stop the music!');
+            return;
+        }
+
+        const queue = interaction.client.music_queue.get(voiceChannel.guild.id);
+        if (!queue) {
+            await interaction.reply('There is no music playing to stop.');
+            return;
+        }
+
+        // Clear the queue
+        interaction.client.music_queue.delete(voiceChannel.guild.id);
+
+        // Disconnect the bot from the voice channel
+        voiceChannel.guild.members.me.voice.disconnect();
+
+        await interaction.reply('Music stopped, queue cleared, and disconnected from the voice channel.');
     }
 };
 
@@ -127,5 +236,3 @@ async function playSong(interaction, voiceChannel, queue) {
         }
     });
 }
-
-module.exports.playSong = playSong;

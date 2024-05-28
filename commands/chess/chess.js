@@ -44,22 +44,43 @@ module.exports = {
                 )
         ),
     async execute(interaction) {
-        if (interaction.options.getSubcommand() === 'analyze') {
+        const subcommand = interaction.options.getSubcommand();
+
+        if (subcommand === 'analyze') {
+            await this.analyzeFen(interaction);
+        } else if (subcommand === 'create-tournament') {
+            await this.createTournament(interaction);
+        } else if (subcommand === 'join-tournament') {
+            await this.joinTournament(interaction);
+        } else if (subcommand === 'view-tournament') {
+            await this.viewTournament(interaction);
+        } else if (subcommand === 'update-tournament') {
+            await this.updateTournament(interaction);
+        }
+    },
+    async analyzeFen(interaction) {
+        try {
             const fen = interaction.options.getString('fen');
 
-            const stm = fen.split(' ')[1] === 'w' ? 'white' : 'black';
+            const sideToMove = fen.split(' ')[1] === 'w' ? 'white' : 'black';
 
             // Generate the Lichess analysis URL
             const analysisUrl = `https://lichess.org/analysis/standard/${encodeURIComponent(fen)}`;
 
             // Generate the Lichess FEN image URL
-            const imageUrl = `https://lichess1.org/export/fen.gif?fen=${encodeURIComponent(fen)}&color=${stm}`;
+            const imageUrl = `https://lichess1.org/export/fen.gif?fen=${encodeURIComponent(fen)}&color=${sideToMove}`;
 
             // Reply with the FEN string, Lichess analysis link, and FEN image link
             await interaction.reply(
                 `\`\`\`${fen}\`\`\` [Lichess Analysis Link](${analysisUrl}) | ![Image](${imageUrl})`
             );
-        } else if (interaction.options.getSubcommand() === 'create-tournament') {
+        } catch (error) {
+            console.error(error);
+            await interaction.reply('An error occurred while analyzing the FEN.');
+        }
+    },
+    async createTournament(interaction) {
+        try {
             if (ongoingTournament) {
                 await interaction.reply('A tournament is already ongoing.');
                 return;
@@ -71,7 +92,13 @@ module.exports = {
             };
 
             await interaction.reply('Tournament created successfully! Players can now join the tournament using the `/chess join-tournament` command.');
-        } else if (interaction.options.getSubcommand() === 'join-tournament') {
+        } catch (error) {
+            console.error(error);
+            await interaction.reply('An error occurred while creating the tournament.');
+        }
+    },
+    async joinTournament(interaction) {
+        try {
             if (!ongoingTournament) {
                 await interaction.reply('No tournament is currently ongoing.');
                 return;
@@ -91,17 +118,33 @@ module.exports = {
             ongoingTournament.players.push(username);
 
             await interaction.reply(`You have successfully joined the tournament! There are now ${ongoingTournament.players.length} players participating.`);
-        } else if (interaction.options.getSubcommand() === 'view-tournament') {
+        } catch (error) {
+            console.error(error);
+            await interaction.reply('An error occurred while joining the tournament.');
+        }
+    },
+    async viewTournament(interaction) {
+        try {
             if (!ongoingTournament) {
-                await interaction.reply('No tournament is currently ongoing.');l
+                await interaction.reply('No tournament is currently ongoing.');
                 return;
             }
-
-            const bracket = generateBracket(ongoingTournament.players);
-            const bracketMessage = generateBracketMessage(bracket);
-
-            await interaction.reply(bracketMessage);
-        } else if (interaction.options.getSubcommand() === 'update-tournament') {
+    
+            const bracket = this.generateTournamentBracket(ongoingTournament.players);
+            const bracketMessage = this.generateTournamentBracketMessage(bracket);
+    
+            if (bracketMessage.trim() === '') {
+                await interaction.reply('There are no matches to display yet.');
+            } else {
+                await interaction.reply(bracketMessage);
+            }
+        } catch (error) {
+            console.error(error);
+            await interaction.reply('An error occurred while viewing the tournament.');
+        }
+    },
+    async updateTournament(interaction) {
+        try {
             if (!ongoingTournament) {
                 await interaction.reply('No tournament is currently ongoing.');
                 return;
@@ -116,40 +159,47 @@ module.exports = {
             ongoingTournament.players = winners;
 
             await interaction.reply('Tournament updated successfully!');
+        } catch (error) {
+            console.error(error);
+            await interaction.reply('An error occurred while updating the tournament.');
         }
     },
+    generateTournamentBracket(players) {
+        if (players.length === 1) {
+            return [[players[0], 'Awaiting Opponent']];
+        }
+    
+        const bracket = [];
+    
+        // Generate a random pairing for each round
+        while (players.length > 1) {
+            const round = [];
+            for (let i = 0; i < players.length / 2; i++) {
+                const player1 = players.splice(Math.floor(Math.random() * players.length), 1)[0];
+                const player2 = players.splice(Math.floor(Math.random() * players.length), 1)[0];
+                round.push([player1, player2]);
+            }
+            bracket.push(round);
+        }
+    
+        return bracket;
+    },
+    generateTournamentBracketMessage(bracket) {
+        let message = '';
+    
+        for (let i = 0; i < bracket.length; i++) {
+            message += `**Round ${i + 1}**\n`;
+            for (let j = 0; j < bracket[i].length; j++) {
+                const match = bracket[i][j];
+                if (match[1] === 'Awaiting Opponent') {
+                    message += `${match[0]} (awaiting opponent)\n`;
+                } else {
+                    message += `${match[0]} vs ${match[1]}\n`;
+                }
+            }
+            message += '\n';
+        }
+    
+        return message;
+    },
 };
-
-// Function to generate the tournament bracket
-function generateBracket(players) {
-    const bracket = [];
-
-    // Generate a random pairing for each round
-    while (players.length > 1) {
-        const round = [];
-        for (let i = 0; i < players.length / 2; i++) {
-            const player1 = players.splice(Math.floor(Math.random() * players.length), 1)[0];
-            const player2 = players.splice(Math.floor(Math.random() * players.length), 1)[0];
-            round.push([player1, player2]);
-        }
-        bracket.push(round);
-    }
-
-    return bracket;
-}
-
-// Function to generate the bracket message
-function generateBracketMessage(bracket) {
-    let message = '';
-
-    for (let i = 0; i < bracket.length; i++) {
-        message += `**Round ${i + 1}**\n`;
-        for (let j = 0; j < bracket[i].length; j++) {
-            const match = bracket[i][j];
-            message += `${match[0]} vs ${match[1]}\n`;
-        }
-        message += '\n';
-    }
-
-    return message;
-}
