@@ -46,31 +46,34 @@ module.exports = {
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
 
-        if (subcommand === 'analyze') {
-            await this.analyzeFen(interaction);
-        } else if (subcommand === 'create-tournament') {
-            await this.createTournament(interaction);
-        } else if (subcommand === 'join-tournament') {
-            await this.joinTournament(interaction);
-        } else if (subcommand === 'view-tournament') {
-            await this.viewTournament(interaction);
-        } else if (subcommand === 'update-tournament') {
-            await this.updateTournament(interaction);
+        switch (subcommand) {
+            case 'analyze':
+                await this.analyzeFen(interaction);
+                break;
+            case 'create-tournament':
+                await this.createTournament(interaction);
+                break;
+            case 'join-tournament':
+                await this.joinTournament(interaction);
+                break;
+            case 'view-tournament':
+                await this.viewTournament(interaction);
+                break;
+            case 'update-tournament':
+                await this.updateTournament(interaction);
+                break;
+            default:
+                await interaction.reply('Invalid subcommand provided.');
+                break;
         }
     },
     async analyzeFen(interaction) {
         try {
             const fen = interaction.options.getString('fen');
-
             const sideToMove = fen.split(' ')[1] === 'w' ? 'white' : 'black';
-
-            // Generate the Lichess analysis URL
             const analysisUrl = `https://lichess.org/analysis/standard/${encodeURIComponent(fen)}`;
-
-            // Generate the Lichess FEN image URL
             const imageUrl = `https://lichess1.org/export/fen.gif?fen=${encodeURIComponent(fen)}&color=${sideToMove}`;
 
-            // Reply with the FEN string, Lichess analysis link, and FEN image link
             await interaction.reply(
                 `\`\`\`${fen}\`\`\` [Lichess Analysis Link](${analysisUrl}) | ![Image](${imageUrl})`
             );
@@ -87,7 +90,7 @@ module.exports = {
             }
 
             ongoingTournament = {
-                players: [],
+                players: ["Player 1", "The Bot", "Chess Master", "Grandmaster", "Leroy"],
                 started: false,
             };
 
@@ -129,15 +132,11 @@ module.exports = {
                 await interaction.reply('No tournament is currently ongoing.');
                 return;
             }
-    
+
             const bracket = this.generateTournamentBracket(ongoingTournament.players);
             const bracketMessage = this.generateTournamentBracketMessage(bracket);
     
-            if (bracketMessage.trim() === '') {
-                await interaction.reply('There are no matches to display yet.');
-            } else {
-                await interaction.reply(bracketMessage);
-            }
+            await interaction.reply(bracketMessage.trim() ? bracketMessage : 'There are no matches to display yet.');
         } catch (error) {
             console.error(error);
             await interaction.reply('An error occurred while viewing the tournament.');
@@ -150,56 +149,39 @@ module.exports = {
                 return;
             }
 
-            if (!ongoingTournament.started) {
-                await interaction.reply('This tournament has not started yet.');
-                return;
-            }
-
-            const winners = interaction.options.getString('winners').split(',');
+            const winners = interaction.options.getString('winners').split(',').map(winner => winner.trim());
             ongoingTournament.players = winners;
 
-            await interaction.reply('Tournament updated successfully!');
+            ongoingTournament.rounds = this.generateTournamentBracket(winners);
+
+            await interaction.reply('Tournament updated successfully! Use `/chess view-tournament` to see the updated brackets.');
         } catch (error) {
             console.error(error);
             await interaction.reply('An error occurred while updating the tournament.');
         }
     },
     generateTournamentBracket(players) {
-        if (players.length === 1) {
-            return [[players[0], 'Awaiting Opponent']];
-        }
-    
-        const bracket = [];
-    
-        // Generate a random pairing for each round
-        while (players.length > 1) {
+        const rounds = [];
+        let currentPlayers = [...players];
+
+        while (currentPlayers.length > 1) {
             const round = [];
-            for (let i = 0; i < players.length / 2; i++) {
-                const player1 = players.splice(Math.floor(Math.random() * players.length), 1)[0];
-                const player2 = players.splice(Math.floor(Math.random() * players.length), 1)[0];
+            while (currentPlayers.length > 1) {
+                const player1 = currentPlayers.shift();
+                const player2 = currentPlayers.length > 0 ? currentPlayers.shift() : 'BYE';
                 round.push([player1, player2]);
             }
-            bracket.push(round);
+            rounds.push(round);
+            currentPlayers = round.map(match => match[1] === 'BYE' ? match[0] : match[0]);
         }
-    
-        return bracket;
+
+        return rounds;
     },
     generateTournamentBracketMessage(bracket) {
-        let message = '';
-    
-        for (let i = 0; i < bracket.length; i++) {
-            message += `**Round ${i + 1}**\n`;
-            for (let j = 0; j < bracket[i].length; j++) {
-                const match = bracket[i][j];
-                if (match[1] === 'Awaiting Opponent') {
-                    message += `${match[0]} (awaiting opponent)\n`;
-                } else {
-                    message += `${match[0]} vs ${match[1]}\n`;
-                }
-            }
-            message += '\n';
-        }
-    
-        return message;
+        return bracket.map((round, i) => 
+            `**Round ${i + 1}**\n` + 
+            round.map(match => match[1] === 'BYE' ? `${match[0]} (advances automatically)` : `${match[0]} vs ${match[1]}`).join('\n') + 
+            '\n'
+        ).join('\n');
     },
 };
