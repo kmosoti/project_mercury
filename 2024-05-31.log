@@ -1,0 +1,47 @@
+[2024-05-31T21:23:55.612Z] Loaded command: chat
+[2024-05-31T21:23:55.681Z] Loaded command: chess
+[2024-05-31T21:23:55.801Z] Loaded command: music
+[2024-05-31T21:23:55.804Z] Loaded command: ping
+[2024-05-31T21:24:30.443Z] Received interaction: chat
+[2024-05-31T21:24:40.237Z] Executed command: chat
+[2024-05-31T21:25:00.521Z] Received interaction: music
+[2024-05-31T21:25:01.620Z] Executed command: music
+[2024-05-31T21:25:01.705Z] Bot has been moved to a new channel: 1029977614879830061
+[2024-05-31T21:43:30.283Z] [INFO] Loaded command: chat
+[2024-05-31T21:43:30.329Z] [INFO] Loaded command: chess
+[2024-05-31T21:43:30.407Z] [INFO] Loaded command: music
+[2024-05-31T21:43:30.411Z] [INFO] Loaded command: ping
+[2024-05-31T21:43:46.887Z] [INFO] Received interaction: music from cybermaasai with arguments: play: undefined
+[2024-05-31T21:43:48.146Z] [INFO] Executed command: music
+[2024-05-31T21:44:15.724Z] [INFO] Received interaction: chess from cybermaasai with arguments: analyze: undefined
+[2024-05-31T21:44:15.989Z] [INFO] Executed command: chess
+[2024-05-31T21:46:25.434Z] [INFO] Bot was disconnected from the voice channel.
+[2024-05-31T22:01:06.832Z] [INFO] Loaded command: chat
+[2024-05-31T22:01:06.890Z] [INFO] Loaded command: chess
+[2024-05-31T22:01:06.970Z] [INFO] Loaded command: music
+[2024-05-31T22:01:06.972Z] [INFO] Loaded command: ping
+[2024-05-31T22:01:13.560Z] [INFO] Received interaction: music play from cybermaasai with arguments: play: undefined
+[2024-05-31T22:01:14.671Z] [INFO] Executed command: music
+[2024-05-31T22:01:14.743Z] [INFO] Bot has been moved to a new channel: 1029977614879830061
+[2024-05-31T22:01:42.760Z] [INFO] Received interaction: music skip from cybermaasai with arguments: skip: undefined
+[2024-05-31T22:01:43.613Z] [INFO] Bot was disconnected from the voice channel.
+[2024-05-31T22:01:43.619Z] [INFO] Executed command: music
+[2024-05-31T22:02:21.734Z] [INFO] Loaded command: chat
+[2024-05-31T22:02:21.786Z] [INFO] Loaded command: chess
+[2024-05-31T22:02:21.868Z] [INFO] Loaded command: music
+[2024-05-31T22:02:21.870Z] [INFO] Loaded command: ping
+[2024-05-31T22:02:29.252Z] [INFO] Received interaction: music play from cybermaasai with arguments: 
+[2024-05-31T22:02:30.805Z] [INFO] Executed command: music
+[2024-05-31T22:02:30.873Z] [INFO] Bot has been moved to a new channel: 1029977614879830061
+[2024-05-31T22:03:36.960Z] [INFO] Bot was disconnected from the voice channel.
+[2024-05-31T23:12:30.613Z] [INFO] Loaded command: chat
+[2024-05-31T23:12:30.667Z] [INFO] Loaded command: chess
+[2024-05-31T23:12:30.757Z] [INFO] Loaded command: music
+[2024-05-31T23:12:30.760Z] [INFO] Loaded command: ping
+[2024-05-31T23:12:39.399Z] [INFO] Received interaction: music play from cybermaasai with arguments: keyword-or-url: The expanse theme
+[2024-05-31T23:12:40.394Z] [INFO] Executed command: music
+[2024-05-31T23:12:40.453Z] [INFO] Bot has been moved to a new channel: 1029977614879830061
+[2024-05-31T23:13:46.553Z] [INFO] Bot was disconnected from the voice channel.
+[2024-05-31T23:13:54.414Z] [INFO] Received interaction: music play from cybermaasai with arguments: keyword-or-url: The Expanse theme
+[2024-05-31T23:13:55.298Z] [INFO] Executed command: music
+[2024-05-31T23:13:55.374Z] [INFO] Bot has been moved to a new channel: 921202195179925515

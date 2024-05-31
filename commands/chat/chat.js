@@ -7,6 +7,9 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Create a Map to store user attempts
+const userAttempts = new Map();
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('chat')
@@ -56,6 +59,24 @@ module.exports = {
   },
   async ask(interaction) {
     const question = interaction.options.getString('question');
+    const userId = interaction.user.id;
+
+    // Check if the user has made attempts before
+    if (!userAttempts.has(userId)) {
+      userAttempts.set(userId, { ask: 0, story: 0, image: 0 });
+    }
+
+    const attempts = userAttempts.get(userId);
+
+    // Check if the user has reached the limit
+    if (attempts.ask >= 20) {
+      await interaction.reply('You have reached the limit of 20 attempts for the ask command.');
+      return;
+    }
+
+    attempts.ask++;
+    userAttempts.set(userId, attempts);
+
     await interaction.deferReply();
     try {
       const response = await openai.chat.completions.create({
@@ -70,6 +91,24 @@ module.exports = {
   },
   async story(interaction) {
     const prompt = interaction.options.getString('prompt');
+    const userId = interaction.user.id;
+
+    // Check if the user has made attempts before
+    if (!userAttempts.has(userId)) {
+      userAttempts.set(userId, { ask: 0, story: 0, image: 0 });
+    }
+
+    const attempts = userAttempts.get(userId);
+
+    // Check if the user has reached the limit
+    if (attempts.story >= 5) {
+      await interaction.reply('You have reached the limit of 5 attempts for the story command.');
+      return;
+    }
+
+    attempts.story++;
+    userAttempts.set(userId, attempts);
+
     await interaction.deferReply();
     try {
       const response = await openai.chat.completions.create({
@@ -84,6 +123,24 @@ module.exports = {
   },
   async image(interaction) {
     const prompt = interaction.options.getString('prompt');
+    const userId = interaction.user.id;
+
+    // Check if the user has made attempts before
+    if (!userAttempts.has(userId)) {
+      userAttempts.set(userId, { ask: 0, story: 0, image: 0 });
+    }
+
+    const attempts = userAttempts.get(userId);
+
+    // Check if the user has reached the limit
+    if (attempts.image >= 5) {
+      await interaction.reply('You have reached the limit of 5 attempts for the image command.');
+      return;
+    }
+
+    attempts.image++;
+    userAttempts.set(userId, attempts);
+
     await interaction.deferReply();
     try {
       const response = await openai.images.generate({
