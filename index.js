@@ -51,18 +51,21 @@ fs.readdirSync(commandsPath).forEach(item => {
 function log(message, level = 'INFO') {
     const date = new Date();
     const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    const logFileName = `${dateString}.log`;
+    const logFileName = `logs/${dateString}.log`;
     const timestamp = date.toISOString();
     const logMessage = `[${timestamp}] [${level}] ${message}\n`;
 
     if (logFile !== logFileName) {
         logFile = logFileName;
+        // Create the logs folder if it does not exist
+        if (!fs.existsSync('logs')) {
+            fs.mkdirSync('logs');
+        }
     }
 
     fs.appendFileSync(logFile, logMessage);
     console.log(logMessage);
 }
-
 // Event handler for interactions
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
